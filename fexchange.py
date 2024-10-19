@@ -9,14 +9,21 @@ app = Flask(__name__)
 
 CONTENT_KEY='content'
 
+DATA_DIR='data'
+
+MAX_CONTENT_SIZE=5000
+
+
+
 def check_student_dir(student):
-    if not Path(student).is_dir():
-        os.mkdir(student)
+    sdir = os.path.join(DATA_DIR,student)
+    if not Path(sdir).is_dir():
+        os.mkdir(sdir)
 
 @app.route('/fexchange/<student>/<contentid>', methods=['GET'])
 def retrieve(student,contentid):
     check_student_dir(student)
-    fname = os.path.join(student,contentid)
+    fname = os.path.join(DATA_DIR,student,contentid)
     if Path(fname).is_file():
         content = ''
         with open(fname,'r') as f:
@@ -30,9 +37,11 @@ def submit(student,contentid):
     check_student_dir(student)
     data = request.form.to_dict(flat=False)
     if CONTENT_KEY in data:
-        # TODO size limit
-        with open(os.path.join(student,contentid),'w') as wf:
-            wf.write(data[CONTENT_KEY][0])
+        content = data[CONTENT_KEY][0]
+        if len(content) > MAX_CONTENT_SIZE:
+            return f'Content longer than {MAX_CONTENT_SIZE} characters for student {student} and content {contentid}'
+        with open(os.path.join(DATA_DIR,student,contentid),'w') as wf:
+            wf.write(content)
     else:
         print(data)
         return f'Student {student} did not include content for {contentid}'
