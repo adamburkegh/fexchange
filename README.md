@@ -1,4 +1,4 @@
-h1. Text Exchange Web Service
+# Text Exchange Web Service
 
 This is a simple example web service for posting and retrieving text. 
 
